@@ -10,21 +10,17 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 @Component
-public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
-{
-    public MySqlProfileDao(DataSource dataSource)
-    {
+public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao {
+    public MySqlProfileDao(DataSource dataSource) {
         super(dataSource);
     }
 
     @Override
-    public Profile create(Profile profile)
-    {
+    public Profile create(Profile profile) {
         String sql = "INSERT INTO profiles (user_id, first_name, last_name, phone, email, address, city, state, zip) " +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try(Connection connection = getConnection())
-        {
+        try (Connection connection = getConnection()) {
             // CORRECTIE: De 'user_id' is de PK, maar wordt niet gegenereerd (het is een FK).
             // PreparedStatement.RETURN_GENERATED_KEYS is hier dus niet nodig.
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -41,9 +37,7 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
             ps.executeUpdate();
 
             return profile;
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

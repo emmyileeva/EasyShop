@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
-public class TokenProvider implements InitializingBean
-{
+public class TokenProvider implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
@@ -38,21 +37,18 @@ public class TokenProvider implements InitializingBean
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-timeout-seconds}") long tokenTimeoutSeconds)
-    {
+            @Value("${jwt.token-timeout-seconds}") long tokenTimeoutSeconds) {
         this.secret = secret;
         this.tokenTimeout = tokenTimeoutSeconds * 1000;
     }
 
     @Override
-    public void afterPropertiesSet()
-    {
+    public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication, boolean rememberMe)
-    {
+    public String createToken(Authentication authentication, boolean rememberMe) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -68,8 +64,7 @@ public class TokenProvider implements InitializingBean
                 .compact();
     }
 
-    public Authentication getAuthentication(String token)
-    {
+    public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -86,15 +81,11 @@ public class TokenProvider implements InitializingBean
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    public boolean validateToken(String authToken)
-    {
-        try
-        {
+    public boolean validateToken(String authToken) {
+        try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.info("Token Invalid.");
             logger.trace("Token Invalid trace: {}.", e.toString());
         }
