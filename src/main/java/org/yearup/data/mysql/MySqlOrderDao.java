@@ -18,9 +18,9 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
     @Override
     public Order create(Order order) {
         String sql = """
-            INSERT INTO orders (user_id, date, address, city, state, zip, shipping_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO orders (user_id, date, address, city, state, zip, shipping_amount)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
