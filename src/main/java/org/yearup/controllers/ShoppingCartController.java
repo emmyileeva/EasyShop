@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.data.UserDao;
+import org.yearup.models.QuantityUpdateDto;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.User;
 
@@ -19,6 +20,7 @@ import java.security.Principal;
 @RequestMapping("/cart")
 @PreAuthorize("isAuthenticated()") // Only allow logged-in users
 @CrossOrigin
+
 public class ShoppingCartController {
     // a shopping cart requires
     private ShoppingCartDao shoppingCartDao;
@@ -89,15 +91,37 @@ public class ShoppingCartController {
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
+    @PutMapping("/products/{productId}")
+    public void updateCartItem(@PathVariable int productId,
+                               @RequestBody QuantityUpdateDto dto,
+                               Principal principal) {
+        try {
+            // Get the username of the currently logged-in user
+            String userName = principal.getName();
 
+            // Retrieve the user from the database
+            User user = userDao.getByUserName(userName);
+            int userId = user.getId();
+
+            // Check if the product exists in the user's cart before updating
+            if (!shoppingCartDao.existsInCart(userId, productId)) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found in shopping cart.");
+            }
+
+            // Call DAO to update the quantity of the product in the cart
+            shoppingCartDao.updateQuantity(userId, productId, dto.getQuantity());
+        } catch (ResponseStatusException e) {
+            throw e; // rethrow known exception
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update cart item.");
+        }
+    }
 
     // add a DELETE method to clear all products from the current users cart
     // https://localhost:8080/cart
     @DeleteMapping
-    public void clearCart(Principal principal)
-    {
-        try
-        {
+    public void clearCart(Principal principal) {
+        try {
             // Get logged in user
             String userName = principal.getName();
             User user = userDao.getByUserName(userName);
@@ -105,12 +129,9 @@ public class ShoppingCartController {
 
             // Clear the cart
             shoppingCartDao.clearCart(userId);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to clear cart.");
         }
     }
-
 
 }
