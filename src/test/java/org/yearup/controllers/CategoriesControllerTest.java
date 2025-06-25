@@ -25,8 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CategoriesController.class) // Limits the test to only the web for CategoriesController
-public class CategoriesControllerTest
-{
+public class CategoriesControllerTest {
     @Autowired
     private MockMvc mockMvc; // Allows us to simulate HTTP requests and test responses
 
@@ -56,14 +55,12 @@ public class CategoriesControllerTest
     private Category sampleCategory;
 
     @BeforeEach
-    public void setUp()
-    {
+    public void setUp() {
         sampleCategory = new Category(1, "Electronics", "Gadgets and more");
     }
 
     @Test
-    public void testGetAllCategories() throws Exception
-    {
+    public void testGetAllCategories() throws Exception {
         // Arrange: Set up the mock return value for getAllCategories
         Mockito.when(categoryDao.getAllCategories()).thenReturn(Arrays.asList(sampleCategory));
 
@@ -74,8 +71,7 @@ public class CategoriesControllerTest
     }
 
     @Test
-    public void testGetCategoryById() throws Exception
-    {
+    public void testGetCategoryById() throws Exception {
         // Arrange: Set up mock return value for getById
         Mockito.when(categoryDao.getById(1)).thenReturn(sampleCategory);
 
@@ -87,8 +83,7 @@ public class CategoriesControllerTest
 
     @Test
     @WithMockUser(roles = {"ADMIN"}) // Simulates an admin user
-    public void testAddCategory() throws Exception
-    {
+    public void testAddCategory() throws Exception {
         // Arrange: Mock the DAO to return the sample category on creation
         Mockito.when(categoryDao.create(any(Category.class))).thenReturn(sampleCategory);
 
@@ -102,8 +97,7 @@ public class CategoriesControllerTest
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    public void testUpdateCategory() throws Exception
-    {
+    public void testUpdateCategory() throws Exception {
         // Act: Perform PUT request to update the category
         mockMvc.perform(put("/categories/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,8 +110,7 @@ public class CategoriesControllerTest
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    public void testDeleteCategory() throws Exception
-    {
+    public void testDeleteCategory() throws Exception {
         // Act: Perform DELETE request to remove the category
         mockMvc.perform(delete("/categories/1"))
                 .andExpect(status().isOk());

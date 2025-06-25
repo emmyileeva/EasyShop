@@ -23,8 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductsController.class) // Test only the ProductsController (web layer)
-public class ProductsControllerTest
-{
+public class ProductsControllerTest {
     @Autowired
     private MockMvc mockMvc; // Used to simulate HTTP requests
 
@@ -51,16 +50,14 @@ public class ProductsControllerTest
     private Product sampleProduct2;
 
     @BeforeEach
-    public void setUp()
-    {
+    public void setUp() {
         // Sample products for use in test cases
         sampleProduct1 = new Product(1, "Red Shirt", new BigDecimal("29.99"), 1, "A red shirt", "red", 10, false, "url1");
         sampleProduct2 = new Product(2, "Blue Shirt", new BigDecimal("49.99"), 2, "A blue shirt", "blue", 15, true, "url2");
     }
 
     @Test
-    public void testSearchProductsWithCategoryFilter() throws Exception
-    {
+    public void testSearchProductsWithCategoryFilter() throws Exception {
         // Arrange: Set up mock return value when searching by category
         Mockito.when(productDao.search(eq(1), any(), any(), any())).thenReturn(List.of(sampleProduct1));
 
@@ -71,8 +68,7 @@ public class ProductsControllerTest
     }
 
     @Test
-    public void testSearchProductsWithPriceRange() throws Exception
-    {
+    public void testSearchProductsWithPriceRange() throws Exception {
         // Arrange: Mock search result for price range between 25 and 50
         Mockito.when(productDao.search(null, new BigDecimal("25"), new BigDecimal("50"), null))
                 .thenReturn(Arrays.asList(sampleProduct1, sampleProduct2));
@@ -84,8 +80,7 @@ public class ProductsControllerTest
     }
 
     @Test
-    public void testSearchProductsWithColorFilter() throws Exception
-    {
+    public void testSearchProductsWithColorFilter() throws Exception {
         // Arrange: Mock search result for products with color "blue"
         Mockito.when(productDao.search(null, null, null, "blue"))
                 .thenReturn(List.of(sampleProduct2));
@@ -98,8 +93,7 @@ public class ProductsControllerTest
 
     @Test
     @WithMockUser(roles = {"ADMIN"}) // Simulate an admin user
-    public void testUpdateProductFixesBug2() throws Exception
-    {
+    public void testUpdateProductFixesBug2() throws Exception {
         // Arrange: Prepare updated product details
         Product updatedProduct = new Product(1, "Updated Shirt", new BigDecimal("39.99"), 1, "Updated desc", "red", 12, false, "url1");
 
