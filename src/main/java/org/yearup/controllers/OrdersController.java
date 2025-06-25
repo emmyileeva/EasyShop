@@ -16,6 +16,8 @@ import org.yearup.models.User;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -37,7 +39,7 @@ public class OrdersController {
 
     // Endpoint to handle checkout process
     @PostMapping
-    public void checkout(Principal principal) {
+    public Order checkout(Principal principal) {
         try {
             // Get the currently logged-in user's username
             String userName = principal.getName();
@@ -70,7 +72,7 @@ public class OrdersController {
             Order createdOrder = orderDao.create(order);
             int orderId = createdOrder.getOrderId();
 
-            System.out.println("Created order with ID: " + orderId);
+            List<OrderLineItem> orderLineItems = new ArrayList<>();
 
             // Insert order line items for each item in the shopping cart
             for (ShoppingCartItem item : cart.getItems().values()) {
@@ -82,9 +84,13 @@ public class OrdersController {
                 lineItem.setDiscount(BigDecimal.ZERO);
 
                 orderLineItemDao.create(lineItem);
+                orderLineItems.add(lineItem);
             }
             // Clear the shopping cart after the order is created
             shoppingCartDao.clearCart(userId);
+
+            createdOrder.setLineItems(orderLineItems); // Set lineItems for return
+            return createdOrder;
 
         } catch (Exception e) {
             e.printStackTrace();
