@@ -39,13 +39,12 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             while (row.next()) {
                 int productId = row.getInt("product_id");
                 int quantity = row.getInt("quantity");
-                double discountPercent = row.getDouble("discount_percent");
 
                 // Fetch the full product details using ProductDao
                 Product product = productDao.getById(productId);
 
                 // Create ShoppingCartItem and calculate line total
-                ShoppingCartItem item = new ShoppingCartItem(product, quantity, discountPercent);
+                ShoppingCartItem item = new ShoppingCartItem(product, quantity);
 
                 cart.add(item);
             }
@@ -78,15 +77,16 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         return false;
     }
 
-    // Method to add a new product with quantity 1 and 0% discount to the user's cart
+    // Method to add a new product with quantity 1 to the user's shopping cart
     @Override
     public void addProduct(int userId, int productId) {
-        String sql = "INSERT INTO shopping_cart (user_id, product_id, quantity, discount_percent) VALUES (?, ?, 1, 0.0)";
+        String sql = "INSERT INTO shopping_cart (user_id, product_id, quantity) VALUES (?, ?, ?)";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
             statement.setInt(2, productId);
+            statement.setInt(3, 1); // Default quantity is 1
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding product to cart.", e);

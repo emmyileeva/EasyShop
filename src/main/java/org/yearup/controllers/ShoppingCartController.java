@@ -46,6 +46,10 @@ public class ShoppingCartController {
 
             // find database user by userId
             User user = userDao.getByUserName(userName);
+            // if user is not found, throw an exception
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+            }
             int userId = user.getId();
 
             // Fetch the user's shopping cart using their userId
@@ -55,6 +59,7 @@ public class ShoppingCartController {
             return cart;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
         }
     }
@@ -67,6 +72,9 @@ public class ShoppingCartController {
             // Get the logged-in user's username and their user ID
             String username = principal.getName();
             User user = userDao.getByUserName(username);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+            }
             int userId = user.getId();
 
             // Check if product already exists in cart
@@ -84,6 +92,7 @@ public class ShoppingCartController {
                 shoppingCartDao.addProduct(userId, productId);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to add product to cart.");
         }
     }
@@ -101,6 +110,10 @@ public class ShoppingCartController {
 
             // Retrieve the user from the database
             User user = userDao.getByUserName(userName);
+            // If user is not found, throw an exception
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+            }
             int userId = user.getId();
 
             // Check if the product exists in the user's cart before updating
@@ -125,11 +138,16 @@ public class ShoppingCartController {
             // Get logged in user
             String userName = principal.getName();
             User user = userDao.getByUserName(userName);
+            // If user is not found, throw an exception
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+            }
             int userId = user.getId();
 
             // Clear the cart
             shoppingCartDao.clearCart(userId);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to clear cart.");
         }
     }
