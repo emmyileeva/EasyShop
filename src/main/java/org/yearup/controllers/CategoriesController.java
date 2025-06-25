@@ -1,6 +1,8 @@
 package org.yearup.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.yearup.data.CategoryDao;
@@ -38,9 +40,16 @@ public class CategoriesController {
 
     // add the appropriate annotation for a get action
     @GetMapping("/{id}")
-    public Category getById(@PathVariable int id) {
-        // get the category by id
-        return categoryDao.getById(id);
+    public ResponseEntity<Category> getById(@PathVariable int id) {
+        Category category = categoryDao.getById(id);
+
+        // check if the category exists
+        if (category == null) {
+            // return a 404 Not Found status if the category does not exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        // return the category with a 200 OK status
+        return ResponseEntity.ok(category);
     }
 
     // the url to return all products in category 1 would look like this
@@ -55,9 +64,10 @@ public class CategoriesController {
     // add annotation to ensure that only an ADMIN can call this function
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Category addCategory(@RequestBody Category category) {
-        // insert the category
-        return categoryDao.create(category);
+    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
+       Category createdCategory = categoryDao.create(category);
+        // return the created category with a 201 Created status
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
@@ -74,6 +84,7 @@ public class CategoriesController {
     // add annotation to ensure that only an ADMIN can call this function
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // return 204 No Content status
     public void deleteCategory(@PathVariable int id) {
         // delete the category by id
         categoryDao.delete(id);
