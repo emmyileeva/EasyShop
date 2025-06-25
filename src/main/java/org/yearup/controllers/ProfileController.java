@@ -1,8 +1,11 @@
 package org.yearup.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProfileDao;
+import org.yearup.data.UserDao;
 import org.yearup.models.Profile;
 
 import java.security.Principal;
@@ -14,10 +17,13 @@ public class ProfileController
 {
     private final ProfileDao profileDao;
 
+    private final UserDao userDao;
+
     // Constructor injection of ProfileDao
-    public ProfileController(ProfileDao profileDao)
+    public ProfileController(ProfileDao profileDao, UserDao userDao)
     {
         this.profileDao = profileDao;
+        this.userDao = userDao;
     }
 
     // GET /profile
@@ -25,8 +31,13 @@ public class ProfileController
     @GetMapping
     public Profile getProfile(Principal principal)
     {
-        int userId = Integer.parseInt(principal.getName());
-        return profileDao.getByUserId(userId);
+        int userId = userDao.getIdByUsername(principal.getName());
+       Profile profile = profileDao.getByUserId(userId);
+        // If the profile is not found, you can throw an exception or return null
+        if (profile == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for user ID: " + userId);
+        }
+        return profile;
     }
 
     // PUT /profile
@@ -34,7 +45,7 @@ public class ProfileController
     @PutMapping
     public void updateProfile(@RequestBody Profile profile, Principal principal)
     {
-        int userId = Integer.parseInt(principal.getName());
+        int userId = userDao.getIdByUsername(principal.getName());
         profile.setUserId(userId); // Make sure the user can't update someone else's profile
         profileDao.update(profile);
     }

@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.yearup.data.ProfileDao;
+import org.yearup.data.UserDao;
 import org.yearup.models.Profile;
 
 import java.security.Principal;
@@ -20,6 +21,9 @@ public class ProfileControllerTest {
 
     @Mock
     private ProfileDao profileDao; // Mocked DAO to isolate the controller
+
+    @Mock
+    private UserDao userDao; // Mocked UserDao to simulate user data access
 
     @Mock
     private Principal mockPrincipal; // Mocked Principal to simulate the current user
@@ -36,11 +40,13 @@ public class ProfileControllerTest {
     public void testGetProfile_ShouldReturnUserProfile() {
         // Arrange - Set up the mock behavior
         int userId = 1;
+        String username = "gary";
         Profile mockProfile = new Profile();
         mockProfile.setUserId(userId);
         mockProfile.setFirstName("Emiliya");
         mockProfile.setLastName("Ileeva");
-        when(mockPrincipal.getName()).thenReturn(String.valueOf(userId)); // simulate user ID as string
+        when(mockPrincipal.getName()).thenReturn(username); // Simulate the principal's username
+        when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
         when(profileDao.getByUserId(userId)).thenReturn(mockProfile); // mock DAO return
 
         // Act - Call the controller method
@@ -57,13 +63,15 @@ public class ProfileControllerTest {
     public void testUpdateProfile_ShouldCallDaoWithCorrectValues() {
         // Arrange - Set up mock values
         int userId = 1;
+        String username = "jenny";
         Profile profileToUpdate = new Profile();
         profileToUpdate.setFirstName("Jenny");
         profileToUpdate.setLastName("Lee");
-        profileToUpdate.setEmail("emily@example.com");
+        profileToUpdate.setEmail("jenny@example.com");
         profileToUpdate.setPhone("123-456-7890");
 
-        when(mockPrincipal.getName()).thenReturn(String.valueOf(userId));
+        when(mockPrincipal.getName()).thenReturn(username); // Simulate the principal's username
+        when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
 
         // Act - Call the controller method
         controller.updateProfile(profileToUpdate, mockPrincipal);

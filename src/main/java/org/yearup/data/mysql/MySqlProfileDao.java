@@ -10,8 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.yearup.data.mysql.MySqlProductDao.mapRow;
-
 @Component
 public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao {
     public MySqlProfileDao(DataSource dataSource) {
