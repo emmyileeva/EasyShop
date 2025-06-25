@@ -31,10 +31,10 @@ This capstone project demonstrates:
 Below are two screenshots from Postman:
 
 ### ✅ Required Endpoints Test Run
-![Required Endpoints](./EasyShop-Postman.png)
+![Required Endpoints](screenshots/EasyShop-Postman.png)
 
 ### 🔄 Optional Features Test Run
-![Optional Endpoints](./EasyShop-Postman-Optional.png)
+![Optional Endpoints](screenshots/EasyShop-Postman-Optional.png)
 
 ---
 
