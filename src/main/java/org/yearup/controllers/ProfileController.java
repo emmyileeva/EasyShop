@@ -1,5 +1,6 @@
 package org.yearup.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -7,46 +8,47 @@ import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProfileDao;
 import org.yearup.data.UserDao;
 import org.yearup.models.Profile;
-
-import java.security.Principal;
+import org.yearup.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/profile")
-@PreAuthorize("isAuthenticated()") // Only authenticated users can access these endpoints
-public class ProfileController
-{
-    private final ProfileDao profileDao;
+@CrossOrigin
+public class ProfileController {
 
+    private final ProfileDao profileDao;
     private final UserDao userDao;
 
-    // Constructor injection of ProfileDao
-    public ProfileController(ProfileDao profileDao, UserDao userDao)
-    {
+    @Autowired
+    public ProfileController(ProfileDao profileDao, UserDao userDao) {
         this.profileDao = profileDao;
         this.userDao = userDao;
     }
 
-    // GET /profile
-    // Returns the profile of the currently authenticated user
     @GetMapping
-    public Profile getProfile(Principal principal)
-    {
-        int userId = userDao.getIdByUsername(principal.getName());
-       Profile profile = profileDao.getByUserId(userId);
-        // If the profile is not found, you can throw an exception or return null
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public Profile getProfile() {
+        String username = SecurityUtils.getCurrentUsername()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
+
+        int userId = userDao.getIdByUsername(username);
+
+        Profile profile = profileDao.getByUserId(userId);
         if (profile == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for user ID: " + userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
         }
+
         return profile;
     }
 
-    // PUT /profile
-    // Updates the profile for the currently authenticated user
     @PutMapping
-    public void updateProfile(@RequestBody Profile profile, Principal principal)
-    {
-        int userId = userDao.getIdByUsername(principal.getName());
-        profile.setUserId(userId); // Make sure the user can't update someone else's profile
-        profileDao.update(profile);
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public void updateProfile(@RequestBody Profile profile) {
+        String username = SecurityUtils.getCurrentUsername()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
+
+        int userId = userDao.getIdByUsername(username);
+
+        // If your DAO expects (Profile, int userId)
+        profileDao.update(profile, userId);
     }
 }
