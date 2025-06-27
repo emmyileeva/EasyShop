@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/orders")
 @PreAuthorize("isAuthenticated()") // Require user to be logged in
+@CrossOrigin
 public class OrdersController {
 
     private final OrderDao orderDao;
