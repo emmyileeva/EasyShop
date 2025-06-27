@@ -26,6 +26,19 @@ This capstone project demonstrates:
 
 ---
 
+## 🚀 How to Run the Project
+
+To run the EasyShop backend locally:
+
+1. Clone the repo and open it in your IDE  
+2. Set up your database connection in `application.properties`  
+3. Run the application using your IDE or `./mvnw spring-boot:run`  
+4. Test endpoints at `http://localhost:8080/api` using Postman or a browser
+
+That's it! 🎉 Your backend should now be running locally.
+
+---
+
 ## 📸 Screenshots
 
 Below are two screenshots from Postman:
