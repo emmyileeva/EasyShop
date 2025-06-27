@@ -54,8 +54,8 @@ public class OrdersControllerTest {
         product.setProductId(100);
         product.setPrice(new BigDecimal("49.99"));
 
-        // Create a ShoppingCartItem with quantity 2 and 0% discount
-        ShoppingCartItem item = new ShoppingCartItem(product, 2, 0.0);
+        // Create a shopping cart item with the product and quantity
+        ShoppingCartItem item = new ShoppingCartItem(product, 2);
 
         // Create a shopping cart and add the item to it
         ShoppingCart cart = new ShoppingCart();

@@ -4,13 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.yearup.data.ProfileDao;
 import org.yearup.data.UserDao;
 import org.yearup.models.Profile;
+import org.yearup.security.SecurityUtils;
 
-import java.security.Principal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,9 +26,6 @@ public class ProfileControllerTest {
 
     @Mock
     private UserDao userDao; // Mocked UserDao to simulate user data access
-
-    @Mock
-    private Principal mockPrincipal; // Mocked Principal to simulate the current user
 
     @InjectMocks
     private ProfileController controller; // Inject mocks into the controller
@@ -45,18 +44,22 @@ public class ProfileControllerTest {
         mockProfile.setUserId(userId);
         mockProfile.setFirstName("Emiliya");
         mockProfile.setLastName("Ileeva");
-        when(mockPrincipal.getName()).thenReturn(username); // Simulate the principal's username
-        when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
-        when(profileDao.getByUserId(userId)).thenReturn(mockProfile); // mock DAO return
 
-        // Act - Call the controller method
-        Profile result = controller.getProfile(mockPrincipal);
+        // Mock SecurityUtils to simulate current user
+        try (MockedStatic<SecurityUtils> securityMock = mockStatic(SecurityUtils.class)) {
+            securityMock.when(SecurityUtils::getCurrentUsername).thenReturn(Optional.of(username));
+            when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
+            when(profileDao.getByUserId(userId)).thenReturn(mockProfile); // mock DAO return
 
-        // Assert - Validate the result
-        assertNotNull(result);
-        assertEquals("Emiliya", result.getFirstName());
-        assertEquals("Ileeva", result.getLastName());
-        verify(profileDao, times(1)).getByUserId(userId); // ensure DAO was called
+            // Act - Call the controller method
+            Profile result = controller.getProfile();
+
+            // Assert - Validate the result
+            assertNotNull(result);
+            assertEquals("Emiliya", result.getFirstName());
+            assertEquals("Ileeva", result.getLastName());
+            verify(profileDao, times(1)).getByUserId(userId); // ensure DAO was called
+        }
     }
 
     @Test
@@ -70,14 +73,17 @@ public class ProfileControllerTest {
         profileToUpdate.setEmail("jenny@example.com");
         profileToUpdate.setPhone("123-456-7890");
 
-        when(mockPrincipal.getName()).thenReturn(username); // Simulate the principal's username
-        when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
+        // Mock SecurityUtils to simulate current user
+        try (MockedStatic<SecurityUtils> securityMock = mockStatic(SecurityUtils.class)) {
+            securityMock.when(SecurityUtils::getCurrentUsername).thenReturn(Optional.of(username));
+            when(userDao.getIdByUsername(username)).thenReturn(userId); // mock UserDao return
 
-        // Act - Call the controller method
-        controller.updateProfile(profileToUpdate, mockPrincipal);
+            // Act - Call the controller method
+            controller.updateProfile(profileToUpdate);
 
-        // Assert - Verify the update was triggered with correct user ID
-        assertEquals(userId, profileToUpdate.getUserId());
-        verify(profileDao, times(1)).update(profileToUpdate);
+            // Assert - Verify the update was triggered with correct user ID
+            verify(profileDao, times(1)).update(profileToUpdate, userId);
+        }
     }
 }
+
