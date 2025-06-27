@@ -7,6 +7,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.yearup.data.OrderDao;
 import org.yearup.data.OrderLineItemDao;
 import org.yearup.data.ShoppingCartDao;
+import org.yearup.data.UserDao;
 import org.yearup.models.*;
 
 import java.math.BigDecimal;
@@ -23,6 +24,9 @@ import static org.mockito.Mockito.*;
 
 @WithMockUser // Simulate an authenticated user for Spring Security
 public class OrdersControllerTest {
+
+    @Mock
+    private UserDao userDao;
 
     @Mock
     private OrderDao orderDao; // Mocked dependency for creating orders
@@ -48,6 +52,12 @@ public class OrdersControllerTest {
     public void checkout_ShouldCreateOrderAndLineItemsAndClearCart() {
         // Arrange
         int userId = 1; // Simulated user ID for the logged-in user
+
+        // Simulated user object
+        User user = new User();
+        user.setId(userId);
+        when(mockPrincipal.getName()).thenReturn(String.valueOf(userId));
+        when(userDao.getByUserName(String.valueOf(userId))).thenReturn(user);
 
         // Create a sample product to go in the cart
         Product product = new Product();

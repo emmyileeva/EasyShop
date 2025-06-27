@@ -91,7 +91,7 @@ public class CategoriesControllerTest {
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleCategory)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath(".name").value("Electronics"));
     }
 
@@ -113,7 +113,7 @@ public class CategoriesControllerTest {
     public void testDeleteCategory() throws Exception {
         // Act: Perform DELETE request to remove the category
         mockMvc.perform(delete("/categories/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         // Assert: Verify the delete method was called on the DAO
         Mockito.verify(categoryDao).delete(1);
